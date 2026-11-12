@@ -63,7 +63,7 @@ The site states this as "Software Engineer" with "backend · cloud · DevOps" be
 
 Real material in the repository:
 
-- `assets/Mark_Lamee_Resume.pdf`: resume. As of 2026-11-13 it is unfinished: it contains bracket placeholders ("[operations management]", "[notifications, ...]", "[Oct 2026]"), a sentence missing a noun ("reports from 10+ into"), no mention of QuickBite, one certification where the site lists three, and a phone number the site does not show. The site links to it but no longer embeds it.
+- `assets/Mark_Lamee_Resume.pdf`: resume. As of 2026-11-13 it is unfinished: it contains bracket placeholders ("[operations management]", "[notifications, ...]", "[Oct 2026]"), a sentence missing a noun ("reports from 10+ into"), no mention of QuickBite, one certification where the site lists three, and a phone number the site does not show. The site embeds it as an inline preview in the resume section on desktop (restored at Mark's request on 2026-11-13 after it had been removed) and links to it on small screens, so its contents are publicly visible on the page.
 - `assets/mark.jpg`: portrait.
 - `assets/saa.png`, `assets/clf.png`, `assets/coursera-de.png`: certification badges and certificate.
 - `assets/eks-architecture.png`: architecture diagram for the AWS EKS Microservices Platform project.
