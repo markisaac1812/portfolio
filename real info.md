@@ -1,2 +1,0 @@
-my name is mark lamee . i am SWE i had a prevoius internship in Creo technologies as data engingieering .
-swe speecilized in Backend enginneris nas well devops and cloud . got 2 cerfitcates know tools like docker and terrafomr and cloud etc
