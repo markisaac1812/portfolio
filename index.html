@@ -1,0 +1,1276 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mark Lamee · Backend &amp; Cloud Engineer</title>
+<meta name="description" content="Mark Lamee is a backend and cloud engineer and AWS Certified Solutions Architect, building event-driven microservices in TypeScript and Go.">
+<meta property="og:title" content="Mark Lamee · Backend & Cloud Engineer">
+<meta property="og:description" content="Event-driven microservices in TypeScript and Go, data pipelines, and AWS infrastructure as code.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230b0b0b'/%3E%3Cg stroke='%23D97757' stroke-width='9' stroke-linecap='round'%3E%3Cpath d='M50 16v68M16 50h68M26 26l48 48M74 26L26 74'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --raised: #131312;
+    --raised-2: #1a1a18;
+    --fg: #f3f1ea;
+    --soft: #c9c7bf;
+    --dim: #8b8a84;
+    --line: #2a2927;
+    --accent: #d97757;
+    --accent-ink: #141413;
+    --accent-soft: rgba(217, 119, 87, .12);
+    --bar: rgba(10, 10, 10, .78);
+    --dot: rgba(255, 255, 255, .1);
+    --glow: rgba(217, 119, 87, .17);
+    --spot: rgba(217, 119, 87, .11);
+    --shadow: rgba(0, 0, 0, .7);
+  }
+  :root[data-theme="light"] {
+    --bg: #ffffff;
+    --raised: #f7f6f1;
+    --raised-2: #efede6;
+    --fg: #141413;
+    --soft: #3d3c38;
+    --dim: #6c6b65;
+    --line: #dddbd3;
+    --accent: #c2603d;
+    --accent-ink: #ffffff;
+    --accent-soft: rgba(194, 96, 61, .09);
+    --bar: rgba(255, 255, 255, .82);
+    --dot: rgba(20, 20, 19, .11);
+    --glow: rgba(194, 96, 61, .13);
+    --spot: rgba(194, 96, 61, .09);
+    --shadow: rgba(60, 40, 30, .28);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 76px; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font: 14.5px/1.7 "JetBrains Mono", ui-monospace, "Cascadia Code", Menlo, Consolas, monospace;
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: 128px;
+  }
+  /* Theme switch: the browser snapshots the page and reveals the new theme in a circle from the toggle.
+     One composited animation instead of every element transitioning its colors. */
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+  ::selection { background: var(--accent); color: var(--accent-ink); }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; padding: 0; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+  img { max-width: 100%; display: block; }
+  h1, h2, h3, p, ul, dl, dd, figure { margin: 0; }
+  ul { padding: 0; list-style: none; }
+  .dim { color: var(--dim); }
+  .acc { color: var(--accent); }
+  .wrap { width: min(1040px, 100%); margin: 0 auto; padding: 0 24px; }
+  .skip { position: absolute; left: -999px; }
+  .skip:focus { left: 12px; top: 12px; z-index: 99; background: var(--accent); color: var(--accent-ink); padding: 6px 12px; border-radius: 6px; }
+
+  .spark { color: var(--accent); display: inline-block; vertical-align: -0.12em; }
+  .spark.spin { animation: breathe 3.4s ease-in-out infinite; }
+  @keyframes breathe { 50% { transform: rotate(20deg) scale(.93); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes fadein { from { opacity: 0; } }
+  @keyframes rise { from { opacity: 0; transform: translateY(12px); } }
+
+  /* ---------- ambient background (decorative, sits behind everything) ---------- */
+  .ambient { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+  .ambient .mask { position: absolute; inset: 0; -webkit-mask-image: radial-gradient(ellipse 95% 75% at 50% 0%, #000 15%, transparent 78%); mask-image: radial-gradient(ellipse 95% 75% at 50% 0%, #000 15%, transparent 78%); }
+  .ambient .dots { position: absolute; inset: -24px 0 0; background-image: radial-gradient(circle, var(--dot) 1px, transparent 1.6px); background-size: 24px 24px; animation: drift 9s linear infinite; }
+  @keyframes drift { to { transform: translateY(24px); } }
+  .ambient .glow { position: absolute; width: 620px; height: 620px; border-radius: 50%; background: radial-gradient(circle, var(--glow), transparent 66%); will-change: transform; }
+  .ambient .glow.a { left: -200px; top: -240px; animation: float-a 24s ease-in-out infinite alternate; }
+  .ambient .glow.b { right: -260px; top: 38%; opacity: .75; animation: float-b 31s ease-in-out infinite alternate; }
+  @keyframes float-a { to { transform: translate(180px, 90px) scale(1.15); } }
+  @keyframes float-b { to { transform: translate(-160px, -140px) scale(.9); } }
+
+  /* ---------- top bar ---------- */
+  .bar {
+    position: sticky; top: 0; z-index: 20;
+    background: var(--bar);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .bar .wrap { display: flex; align-items: center; gap: 18px; height: 54px; }
+  .bar { transition: box-shadow .3s; }
+  .bar.scrolled { box-shadow: 0 12px 30px -22px var(--shadow); }
+  .progress { position: absolute; left: 0; top: 0; width: 100%; height: 2px; background: var(--accent); transform: scaleX(0); transform-origin: 0 50%; will-change: transform; pointer-events: none; }
+  .lights { display: flex; gap: 7px; flex: none; }
+  .lights i { width: 11px; height: 11px; border-radius: 50%; border: 1px solid var(--dim); opacity: .55; }
+  .lights i:first-child { background: var(--accent); border-color: var(--accent); opacity: 1; }
+  .brand { color: var(--fg); font-weight: 700; white-space: nowrap; flex: none; }
+  .brand:hover { text-decoration: none; }
+  .brand .spark { transition: transform .6s cubic-bezier(.2, .8, .2, 1); }
+  .brand:hover .spark { transform: rotate(180deg) scale(1.15); }
+  .brand .at { color: var(--dim); font-weight: 400; }
+  .nav { position: relative; display: flex; align-items: center; align-self: stretch; gap: 2px; margin-left: auto; overflow-x: auto; scrollbar-width: none; }
+  .nav::-webkit-scrollbar { display: none; }
+  .nav a { color: var(--dim); padding: 4px 10px; border-radius: 6px; white-space: nowrap; font-size: 13px; transition: color .2s, background-color .2s; }
+  .nav a:hover { color: var(--fg); background: var(--raised-2); text-decoration: none; }
+  .nav a.on { color: var(--accent); }
+  /* Active marker: a 1px-wide bar that is moved and stretched with transform only. */
+  .nav-ind { position: absolute; left: 0; bottom: 0; width: 1px; height: 2px; background: var(--accent); transform-origin: 0 50%; transform: scaleX(0); transition: transform .4s cubic-bezier(.3, .9, .3, 1); pointer-events: none; }
+  .theme { color: var(--dim); font-size: 15px; line-height: 1; flex: none; width: 30px; height: 30px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 8px; transition: color .2s, border-color .2s, transform .5s cubic-bezier(.2, .8, .2, 1); }
+  .theme:hover { color: var(--accent); border-color: var(--accent); transform: rotate(180deg); }
+  .theme:active { transform: rotate(180deg) scale(.9); }
+
+  /* ---------- shared pieces ---------- */
+  section { padding-top: 88px; }
+  .prompt {
+    background: var(--raised);
+    border-radius: 6px;
+    padding: 5px 12px;
+    color: var(--fg);
+  }
+  .prompt .gt { color: var(--accent); margin-right: 10px; }
+  .prompt { border: 1px solid var(--line); }
+  .tool { display: grid; grid-template-columns: 1.5em minmax(0, 1fr); margin-top: 12px; }
+  .tool .dot { color: var(--accent); }
+  .tool .sub { color: var(--dim); }
+  .tool .sub::before { content: "⎿  "; }
+  .head { margin: 26px 0 28px; }
+  .head:empty { margin: 0 0 24px; }
+
+  /* Section header "run" sequence. JS adds .pre (waiting) then .run (playing); everything keeps its
+     place in the layout, so nothing shifts. Without JS or with reduced motion neither class is set. */
+  .cmd { position: relative; display: inline-block; }
+  .cmd .txt { display: inline-block; }
+  .cmd::after { content: ""; position: absolute; left: 0; top: .2em; width: .58em; height: 1.2em; background: var(--accent); opacity: 0; pointer-events: none; }
+  .slot { position: relative; display: inline-block; }
+  .think { position: absolute; left: 0; top: 0; white-space: nowrap; color: var(--accent); opacity: 0; pointer-events: none; }
+  .think i { display: inline-block; font-style: normal; }
+  .pre .cmd .txt { clip-path: inset(0 100% 0 0); }
+  .pre .tool, .pre .head, .pre .res { opacity: 0; }
+  .run .cmd .txt { animation: type calc(var(--n) * 24ms) steps(var(--n)) both; }
+  .run .cmd::after { animation: caret calc(var(--n) * 24ms) steps(var(--n)) both, caret-out .15s calc(var(--n) * 24ms + .45s) both; }
+  .run .tool { animation: fadein .18s .28s backwards; }
+  .run .tool .dot { animation: blink .22s steps(2) .28s 2; }
+  .run .think { animation: think .5s .28s both; }
+  .run .think i { animation: spin .5s linear .28s 1; }
+  .run .res { animation: fadein .2s .74s backwards; }
+  .run .head { animation: rise .5s cubic-bezier(.2, .8, .2, 1) .62s backwards; }
+  @keyframes type { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 -1ch 0 0); } }
+  @keyframes caret { from { transform: translateX(0); opacity: 1; } to { transform: translateX(calc(var(--n) * 1ch)); opacity: 1; } }
+  @keyframes caret-out { from { opacity: 1; } to { opacity: 0; } }
+  @keyframes think { 0% { opacity: 0; } 20%, 80% { opacity: 1; } 100% { opacity: 0; } }
+  .head h2 { font-size: clamp(24px, 4vw, 32px); line-height: 1.2; font-weight: 800; letter-spacing: -.02em; }
+  .head p { color: var(--dim); margin-top: 8px; max-width: 68ch; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 8px 14px;
+    color: var(--fg);
+    background: var(--raised);
+    position: relative; overflow: hidden;
+    transition: border-color .2s, color .2s, background-color .2s, box-shadow .2s, transform .2s cubic-bezier(.2, .8, .2, 1);
+    white-space: nowrap;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; transform: translateY(-2px); box-shadow: 0 10px 22px -14px var(--accent); }
+  .btn:active { transform: translateY(0) scale(.97); transition-duration: .06s; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 700; box-shadow: 0 8px 24px -14px var(--accent); }
+  .btn.primary:hover { color: var(--accent-ink); filter: brightness(1.08); box-shadow: 0 12px 28px -12px var(--accent); }
+  .btn.primary::after { content: ""; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, .38) 50%, transparent 65%); transform: translateX(-120%); pointer-events: none; }
+  .btn.primary:hover::after { transform: translateX(120%); transition: transform .65s ease; }
+  /* Trailing arrows (wrapped by JS) nudge in their own direction on hover. */
+  .arr { display: inline-block; transition: transform .2s cubic-bezier(.2, .8, .2, 1); }
+  a:hover .arr.r { transform: translateX(3px); }
+  a:hover .arr.d { transform: translateY(2px); }
+  a:hover .arr.ne { transform: translate(2px, -2px); }
+  .btns { display: flex; flex-wrap: wrap; gap: 10px; }
+
+  .card {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--raised);
+    padding: 20px 22px;
+    position: relative; isolation: isolate;
+    transition: border-color .25s, box-shadow .25s, transform .3s cubic-bezier(.2, .8, .2, 1);
+  }
+  .card:hover { border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); }
+  /* Cursor-follow glow: JS writes --mx/--my on the hovered card. */
+  .card::before, .welcome::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; opacity: 0; transition: opacity .35s; pointer-events: none; background: radial-gradient(440px circle at var(--mx, 50%) var(--my, 0%), var(--spot), transparent 68%); }
+  .card:hover::before, .welcome:hover::before { opacity: 1; }
+  .card.lift:hover, html.js .card.lift.in:hover { transform: translateY(-3px); box-shadow: 0 22px 40px -28px var(--shadow); }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; font-size: 12px; }
+  .tags span { border: 1px solid var(--line); border-radius: 4px; padding: 0 7px; color: var(--dim); background: var(--bg); transition: color .2s, border-color .2s; }
+  .card:hover .tags span { color: var(--soft); }
+  .tags span:hover { color: var(--accent); border-color: var(--accent); }
+  .bullets li { position: relative; padding-left: 1.5em; color: var(--soft); }
+  .bullets li + li { margin-top: 8px; }
+  .bullets li::before { content: "-"; position: absolute; left: .2em; color: var(--accent); }
+  .bullets b { color: var(--fg); }
+
+  html.js .rv { opacity: 0; transform: translateY(16px); transition: opacity .45s ease, transform .45s cubic-bezier(.2, .8, .2, 1); }
+  html.js .rv.in { opacity: 1; transform: none; }
+  html.js .rv.in.card { transition: opacity .45s ease, border-color .25s, box-shadow .25s, transform .3s cubic-bezier(.2, .8, .2, 1); }
+
+  /* ---------- home ---------- */
+  #home { padding-top: 44px; }
+  .boot { color: var(--dim); margin-bottom: 14px; }
+  .boot .cmd { --n: 29; }
+  .boot .cmd .txt { animation: type .42s steps(29) both; }
+  .boot .cmd::after { animation: caret .42s steps(29) both, caret-out .15s 1s both; }
+  .stg { animation: rise .6s cubic-bezier(.2, .8, .2, 1) backwards; animation-delay: calc(.1s + var(--i, 0) * 55ms); }
+  .boot b { color: var(--fg); font-weight: 500; }
+  .welcome {
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    margin: 0;
+    padding: 8px 28px 28px;
+    min-width: 0;
+    position: relative; isolation: isolate;
+    background: linear-gradient(160deg, var(--accent-soft), transparent 42%), var(--bar);
+    box-shadow: 0 40px 90px -60px var(--accent);
+    animation: fadein .5s backwards;
+  }
+  .welcome legend { color: var(--accent); padding: 0 10px; font-size: 13px; }
+  .w-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); }
+  .w-left { text-align: center; padding: 22px 28px 10px 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .w-left .hello { color: var(--dim); }
+  .w-left h1 { font-size: clamp(34px, 6vw, 52px); line-height: 1.1; font-weight: 800; letter-spacing: -.03em; margin: 4px 0 18px; }
+  .avatar { position: relative; width: 168px; height: 168px; margin: 2px 0; }
+  .avatar::before { content: ""; position: absolute; inset: -34px; border-radius: 50%; background: radial-gradient(circle, var(--glow) 20%, transparent 68%); animation: halo 5s ease-in-out infinite; }
+  @keyframes halo { 50% { transform: scale(1.12); opacity: .55; } }
+  .avatar .ph { position: absolute; inset: 7px; border-radius: 50%; overflow: hidden; background: var(--raised); box-shadow: 0 0 0 5px var(--bg), 0 0 0 7px color-mix(in srgb, var(--accent) 45%, var(--bg)); }
+  .avatar .ph img { width: 100%; height: 100%; object-fit: cover; transition: transform .7s cubic-bezier(.2, .8, .2, 1); }
+  .avatar:hover .ph img { transform: scale(1.07); }
+  /* A bright arc sweeping around the static ring. */
+  .avatar .ring { position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from 0deg, transparent 0 45%, var(--accent) 78%, transparent 80%); -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2px)); mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2px)); animation: spin 6s linear infinite; }
+  .avatar .spark { position: absolute; right: -8px; bottom: -2px; width: 44px; height: 44px; background: var(--bg); border-radius: 50%; padding: 6px; box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent); }
+  .role { margin-top: 18px; font-weight: 700; min-height: 1.7em; }
+  .cursor { display: inline-block; width: .6em; height: 1.1em; background: var(--accent); vertical-align: -0.18em; margin-left: 2px; animation: blink 1.1s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .w-left .meta { color: var(--dim); font-size: 13px; }
+  .w-right { border-left: 1px solid color-mix(in srgb, var(--accent) 55%, transparent); padding: 22px 0 10px 28px; }
+  .w-right h2 { color: var(--accent); font-size: 14px; font-weight: 700; }
+  .w-right .lede { color: var(--soft); margin: 4px 0 0; }
+  .w-right hr { border: 0; border-top: 1px solid color-mix(in srgb, var(--accent) 40%, transparent); margin: 16px 0; }
+  .now li { display: grid; grid-template-columns: 1.4em minmax(0, 1fr); color: var(--soft); }
+  .now li::before { content: "●"; color: var(--accent); font-size: 10px; line-height: 2.4; }
+  .now .live::before { animation: pulse 1.8s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity: .25; } }
+  .w-right .btns { margin-top: 20px; }
+
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 18px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--raised); }
+  .stats div { position: relative; padding: 16px 20px 15px; transition: background-color .25s; }
+  .stats div + div { border-left: 1px solid var(--line); }
+  .stats div::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px; background: var(--accent); transform: scaleX(0); transform-origin: 0 50%; transition: transform .45s cubic-bezier(.2, .8, .2, 1); }
+  .stats div:hover { background: var(--raised-2); }
+  .stats div:hover::before { transform: scaleX(1); }
+  .stats b { display: block; font-size: 28px; line-height: 1.2; color: var(--accent); font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+  .stats span { display: block; color: var(--dim); font-size: 12.5px; line-height: 1.5; margin-top: 2px; }
+
+  /* Stack ticker: a decorative echo of the skills list. */
+  .ticker { margin-top: 20px; overflow: hidden; white-space: nowrap; color: var(--dim); font-size: 12.5px; -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); }
+  .ticker .track { display: inline-flex; animation: marquee 70s linear infinite; will-change: transform; }
+  .ticker:hover .track { animation-play-state: paused; }
+  .ticker span { padding-left: 14px; }
+  .ticker span::after { content: "✻"; color: var(--accent); opacity: .75; margin-left: 14px; }
+  @keyframes marquee { to { transform: translateX(-50%); } }
+
+  /* ---------- about ---------- */
+  .about { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 28px; align-items: start; }
+  .about .prose p { color: var(--soft); max-width: 62ch; }
+  .about .prose p + p { margin-top: 14px; }
+  .about .prose b { color: var(--fg); }
+  .edu h3 { font-size: 15px; }
+  .edu .when { color: var(--accent); font-size: 12.5px; }
+  .edu dl { margin-top: 12px; display: grid; gap: 10px; }
+  .edu dt { color: var(--dim); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+  .edu dd { color: var(--soft); font-size: 13.5px; }
+
+  /* ---------- experience ---------- */
+  .job { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 24px; }
+  .job .when { color: var(--accent); font-size: 13px; padding-top: 3px; }
+  .job .when::before { content: "●"; font-size: 9px; margin-right: 8px; vertical-align: 1px; }
+  .job .where { color: var(--dim); font-size: 13px; }
+  .job h3 { font-size: 17px; }
+  .job h3 span { color: var(--dim); font-weight: 400; }
+  .job h3 .acc { color: var(--accent); font-weight: 700; }
+  .job .bullets { margin: 14px 0 16px; }
+
+  /* ---------- projects ---------- */
+  .feature { padding: 0; overflow: hidden; }
+  .feature-top { padding: 24px 26px 6px; }
+  .badge { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 1px 10px; background: var(--accent-soft); }
+  .badge::before { content: "●"; font-size: 9px; animation: pulse 1.8s ease-in-out infinite; }
+  .feature h3 { font-size: clamp(22px, 3.4vw, 28px); font-weight: 800; letter-spacing: -.02em; margin: 12px 0 6px; }
+  .feature .desc { color: var(--soft); max-width: 74ch; }
+  .feature .tags { margin-top: 14px; }
+
+  .arch { margin: 22px 26px 0; border: 1px dashed var(--line); border-radius: 10px; padding: 18px; background: var(--bg); font-size: 12.5px; }
+  .arch-label { color: var(--dim); font-size: 11.5px; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 10px; }
+  .clients { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .clients span { border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; text-align: center; color: var(--soft); }
+  .clients span { transition: border-color .2s, color .2s; }
+  .clients span:hover { border-color: var(--accent); color: var(--fg); }
+  .flow { display: flex; align-items: center; gap: 12px; line-height: 1.3; }
+  .flow::before, .flow::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  .flow b { color: var(--accent); font-weight: 400; font-size: 11.5px; border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); border-radius: 999px; padding: 2px 10px; background: var(--accent-soft); }
+  /* Wires: thin stems with a packet travelling along each one while the diagram is on screen. */
+  .wires { display: grid; gap: 8px; }
+  .wires.w4 { grid-template-columns: repeat(4, 1fr); }
+  .wires.w3 { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .wires i { position: relative; justify-self: center; width: 1px; height: 22px; background: color-mix(in srgb, var(--accent) 40%, var(--line)); }
+  .wires i.off { visibility: hidden; }
+  .wires i::after { content: ""; position: absolute; left: -2px; top: -3px; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px 1px var(--accent); opacity: 0; }
+  .arch.live .wires i::after { animation: packet 2.4s cubic-bezier(.45, 0, .55, 1) infinite; animation-delay: calc(var(--t, 0s) + var(--k, 0) * .3s); }
+  .arch.live .wires i.up::after { animation-name: packet-up; }
+  .wires i:nth-child(2) { --k: 1; } .wires i:nth-child(3) { --k: 2; } .wires i:nth-child(4) { --k: 3; }
+  .wires.mid { --t: .7s; } .wires.to-bus { --t: 1.4s; }
+  @keyframes packet { 0% { transform: translateY(0); opacity: 0; } 12%, 55% { opacity: 1; } 70%, 100% { transform: translateY(22px); opacity: 0; } }
+  @keyframes packet-up { 0% { transform: translateY(22px); opacity: 0; } 12%, 55% { opacity: 1; } 70%, 100% { transform: translateY(0); opacity: 0; } }
+  .svcs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .svc { border: 1px solid var(--accent); border-radius: 8px; padding: 10px 12px 0; background: var(--accent-soft); display: flex; flex-direction: column; transition: opacity .25s, box-shadow .25s, transform .25s cubic-bezier(.2, .8, .2, 1); }
+  .svc.hot { transform: translateY(-3px); box-shadow: 0 0 0 1px var(--accent), 0 14px 30px -16px var(--accent); }
+  .svcs.has-hot .svc:not(.hot) { opacity: .45; }
+  .services article { transition: background-color .25s; }
+  .services article.hot { background: var(--accent-soft); }
+  .services article.hot h4 { color: var(--accent); }
+  .services h4 { transition: color .2s; }
+  .svc-name { font-weight: 700; }
+  .svc-lang { color: var(--accent); font-size: 12px; }
+  .svc ul { margin: 8px 0 10px; color: var(--soft); }
+  .svc li::before { content: "▪ "; color: var(--dim); }
+  .svc .out { margin-top: auto; border-top: 1px dashed color-mix(in srgb, var(--accent) 50%, transparent); padding: 6px 0; color: var(--dim); text-align: center; }
+  .bus { position: relative; overflow: hidden; border: 1px solid var(--line); border-radius: 6px; padding: 7px 10px; text-align: center; background: var(--raised-2); }
+  .bus::before, .bus::after { content: ""; position: absolute; left: 0; width: 34%; height: 1px; background: linear-gradient(90deg, transparent, var(--accent), transparent); transform: translateX(-100%); }
+  .bus::before { top: 0; } .bus::after { bottom: 0; }
+  .arch.live .bus::before { animation: streak 3.2s linear infinite; }
+  .arch.live .bus::after { animation: streak 3.2s linear -1.6s infinite reverse; }
+  @keyframes streak { to { transform: translateX(300%); } }
+  .bus b { color: var(--accent); }
+
+  .services { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); margin-top: 24px; }
+  .services article { padding: 20px 22px 22px; display: flex; flex-direction: column; gap: 10px; }
+  .services article + article { border-left: 1px solid var(--line); }
+  .services h4 { margin: 0; font-size: 15px; }
+  .services h4 small { display: block; color: var(--accent); font-weight: 400; font-size: 12px; }
+  .services p { color: var(--soft); font-size: 13.5px; }
+  .services a { margin-top: auto; font-size: 13px; }
+
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-top: 18px; }
+  .proj { display: flex; flex-direction: column; gap: 12px; }
+  .proj.wide { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: center; }
+  .proj.wide .col { display: flex; flex-direction: column; gap: 12px; }
+  .proj h3 { font-size: 16.5px; line-height: 1.35; }
+  .proj h3 .acc { margin-right: 6px; display: inline-block; transition: transform .25s cubic-bezier(.2, .8, .2, 1); }
+  .proj:hover h3 .acc { transform: translateX(3px); }
+  .proj p { color: var(--soft); font-size: 13.5px; }
+  .proj .links { display: flex; gap: 18px; font-size: 13px; margin-top: auto; padding-top: 4px; }
+  .proj .kind { color: var(--dim); font-size: 12px; text-transform: uppercase; letter-spacing: .1em; }
+  .shot { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: #000; }
+  .shot { display: block; transition: border-color .25s; }
+  .shot:hover { border-color: var(--accent); }
+  .shot img { width: 100%; height: auto; transition: transform .6s cubic-bezier(.2, .8, .2, 1); }
+  .shot:hover img { transform: scale(1.04); }
+  .more { margin-top: 18px; text-align: center; }
+
+  /* ---------- skills ---------- */
+  .skillrow { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 16px; padding: 16px 0; border-top: 1px solid var(--line); }
+  .skillrow:last-child { border-bottom: 1px solid var(--line); }
+  .skillrow h3 { font-size: 13px; color: var(--dim); font-weight: 400; padding-top: 7px; transition: color .2s; }
+  .skillrow:hover h3 { color: var(--fg); }
+  .skillrow h3::before { content: "# "; color: var(--accent); }
+  .tiles { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tile { display: inline-flex; align-items: center; gap: 9px; border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px 6px 10px; background: var(--raised); font-size: 13.5px; transition: border-color .15s, color .15s, transform .15s; }
+  .tile:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 18px -12px var(--accent); }
+  .tile svg { width: 18px; height: 18px; fill: currentColor; flex: none; transition: transform .25s cubic-bezier(.2, .8, .2, 1); }
+  .tile:hover svg { transform: scale(1.18) rotate(-6deg); }
+  /* Tiles pop in one after another once their block has been revealed. */
+  .rv.in .tile { animation: pop .4s cubic-bezier(.2, .8, .2, 1) backwards; animation-delay: calc(var(--i, 0) * 16ms); }
+  @keyframes pop { from { opacity: 0; transform: translateY(8px) scale(.94); } }
+  .tile .mono { width: 18px; height: 18px; border: 1px solid currentColor; border-radius: 4px; font-size: 9px; font-weight: 700; display: grid; place-items: center; opacity: .8; flex: none; }
+
+  /* ---------- certifications ---------- */
+  .certs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+  .cert { display: grid; grid-template-columns: 116px minmax(0, 1fr); gap: 20px; align-items: center; }
+  .cert img { width: 116px; height: 116px; object-fit: contain; filter: drop-shadow(0 8px 18px rgba(0, 0, 0, .35)); transition: transform .3s ease; }
+  .cert:hover img { transform: rotate(-4deg) scale(1.07); }
+  .cert h3 { font-size: 15.5px; line-height: 1.4; }
+  .cert .issuer { color: var(--dim); font-size: 13px; }
+  .cert .date { color: var(--accent); font-size: 13px; margin-top: 6px; }
+  .cert .verify { display: inline-block; margin-top: 8px; font-size: 13px; }
+  .cert.wide { grid-column: 1 / -1; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 26px; }
+  .cert.wide .shot { background: #fff; }
+  .cert.wide img, .cert.wide:hover img { width: 100%; height: auto; filter: none; transform: none; }
+  .cert .courses { margin-top: 10px; color: var(--soft); font-size: 13px; }
+  .cert .courses li::before { content: "▪ "; color: var(--dim); }
+
+  /* ---------- resume ---------- */
+  .resume { padding: 0; overflow: hidden; }
+  .resume-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+  .resume-bar .file { color: var(--dim); font-size: 13px; }
+  .resume-bar .file b { color: var(--fg); font-weight: 500; }
+  .resume iframe { display: block; width: 100%; height: min(1180px, 130vw); border: 0; background: #fff; }
+  .resume .fallback { display: none; padding: 26px 20px; text-align: center; color: var(--dim); }
+
+  /* ---------- contact ---------- */
+  .contact { text-align: center; padding: 56px 24px 52px; border-color: var(--accent); overflow: hidden; background: radial-gradient(ellipse 60% 75% at 50% 0%, var(--accent-soft), transparent 72%), var(--raised); box-shadow: 0 40px 90px -60px var(--accent); }
+  .contact::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background-image: radial-gradient(circle, var(--dot) 1px, transparent 1.6px); background-size: 22px 22px; -webkit-mask-image: radial-gradient(ellipse 70% 85% at 50% 0%, #000, transparent 78%); mask-image: radial-gradient(ellipse 70% 85% at 50% 0%, #000, transparent 78%); }
+  .c-spark { position: relative; width: 64px; height: 64px; margin: 0 auto; display: grid; place-items: center; }
+  .c-spark .spark { width: 48px; height: 48px; }
+  .c-spark::before, .c-spark::after { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 1px solid var(--accent); opacity: 0; animation: ripple 3.4s ease-out infinite; }
+  .c-spark::after { animation-delay: 1.7s; }
+  @keyframes ripple { 0% { transform: scale(.7); opacity: .55; } 100% { transform: scale(2.4); opacity: 0; } }
+  .contact h3 { font-size: clamp(24px, 4.4vw, 36px); line-height: 1.2; font-weight: 800; letter-spacing: -.025em; margin: 18px 0 10px; }
+  .contact p { color: var(--soft); max-width: 56ch; margin: 0 auto 26px; }
+  .contact .btns { justify-content: center; }
+  .foot { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px 20px; color: var(--dim); font-size: 12.5px; margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--line); }
+  .foot a { color: var(--dim); transition: color .2s; }
+  .foot a:hover { color: var(--accent); text-decoration: none; }
+  .foot .spark { transition: transform .6s cubic-bezier(.2, .8, .2, 1); }
+  .foot:hover .spark { transform: rotate(180deg); }
+
+  /* ---------- composer ---------- */
+  .composer {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+    background: linear-gradient(to top, var(--bg) 62%, transparent);
+    padding: 22px 0 12px;
+    pointer-events: none;
+  }
+  .composer .wrap { position: relative; pointer-events: auto; }
+  .inputbox { display: flex; align-items: center; gap: 10px; border: 1px solid var(--dim); border-radius: 10px; padding: 9px 14px; background: var(--bg); transition: border-color .2s, box-shadow .2s; box-shadow: 0 -10px 40px -18px var(--shadow); cursor: text; }
+  .inputbox:hover { border-color: var(--soft); }
+  .inputbox:focus-within { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft), 0 -10px 40px -18px var(--shadow); }
+  .inputbox .gt { color: var(--dim); transition: color .2s; }
+  .inputbox:focus-within .gt { color: var(--accent); }
+  #input { flex: 1; min-width: 0; background: none; border: 0; outline: 0; color: var(--fg); font: inherit; caret-color: var(--accent); }
+  #input::placeholder { color: var(--dim); opacity: .85; }
+  .inputbox kbd { font: inherit; font-size: 11.5px; color: var(--dim); border: 1px solid var(--line); border-radius: 4px; padding: 0 6px; }
+  .hint { display: flex; justify-content: space-between; gap: 12px; color: var(--dim); font-size: 12px; padding: 4px 4px 0; }
+  .hint .avail::before { content: "●"; color: var(--accent); margin-right: 6px; animation: pulse 1.8s ease-in-out infinite; }
+  #menu, #toast {
+    position: absolute; left: 24px; right: 24px; bottom: calc(100% + 6px);
+    background: var(--raised); border: 1px solid var(--line); border-radius: 10px;
+    padding: 6px; display: none; font-size: 13px;
+    box-shadow: 0 -14px 40px rgba(0, 0, 0, .35);
+  }
+  #menu.open, #toast.open { display: block; animation: pop-up .2s cubic-bezier(.2, .8, .2, 1) backwards; }
+  @keyframes pop-up { from { opacity: 0; transform: translateY(8px); } }
+  #toast { padding: 8px 14px; color: var(--soft); }
+  .mi { display: grid; grid-template-columns: 15ch minmax(0, 1fr); gap: 12px; padding: 2px 10px; color: var(--dim); cursor: pointer; border-radius: 6px; }
+  .mi span:first-child { color: var(--soft); }
+  .mi.sel, .mi:hover { color: var(--accent); background: var(--accent-soft); }
+  .mi.sel span:first-child, .mi:hover span:first-child { color: var(--accent); font-weight: 700; }
+
+  @media (max-width: 860px) {
+    .w-grid, .about, .proj.wide { grid-template-columns: 1fr; }
+    .w-left { padding-right: 0; }
+    .w-right { border-left: 0; border-top: 1px solid color-mix(in srgb, var(--accent) 55%, transparent); padding: 22px 0 6px; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .stats div:nth-child(3) { border-left: 0; }
+    .stats div:nth-child(n+3) { border-top: 1px solid var(--line); }
+    .services, .svcs, .grid, .certs { grid-template-columns: 1fr; }
+    .services article + article { border-left: 0; border-top: 1px solid var(--line); }
+    .clients { grid-template-columns: repeat(2, 1fr); }
+    .job, .skillrow { grid-template-columns: 1fr; gap: 8px; }
+    .lights, .brand .at { display: none; }
+    .nav { -webkit-mask-image: linear-gradient(90deg, transparent, #000 14px, #000 calc(100% - 14px), transparent); mask-image: linear-gradient(90deg, transparent, #000 14px, #000 calc(100% - 14px), transparent); }
+    .ambient .glow { width: 420px; height: 420px; }
+    .wires.w4 { grid-template-columns: repeat(2, 1fr); }
+    .wires.w4 i:nth-child(n+3) { display: none; }
+    .wires.w3 { grid-template-columns: 1fr; }
+    .wires.mid i:nth-child(n+2), .wires.to-bus i:nth-child(-n+2) { display: none; }
+  }
+  @media (max-width: 640px) {
+    body { font-size: 13.5px; }
+    .wrap { padding: 0 16px; }
+    section { padding-top: 64px; }
+    .welcome { padding: 6px 18px 20px; }
+    .arch { margin: 20px 16px 0; padding: 14px; }
+    .feature-top { padding: 20px 18px 4px; }
+    .cert { grid-template-columns: 84px minmax(0, 1fr); gap: 14px; }
+    .cert img { width: 84px; height: 84px; }
+    .cert.wide { grid-template-columns: 1fr; }
+    .resume iframe { display: none; }
+    .resume .fallback { display: block; }
+    .hint .keys, .inputbox kbd { display: none; }
+    #menu, #toast { left: 16px; right: 16px; }
+    .avatar { width: 152px; height: 152px; }
+    .w-left .meta { font-size: 12px; }
+    .contact { padding: 44px 18px 40px; }
+    .foot { justify-content: center; text-align: center; }
+    .mi { grid-template-columns: 12ch minmax(0, 1fr); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    html.js .rv { opacity: 1; transform: none; transition: none; }
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#about">Skip to content</a>
+<div class="ambient" aria-hidden="true">
+  <div class="glow a"></div>
+  <div class="glow b"></div>
+  <div class="mask"><div class="dots"></div></div>
+</div>
+
+<header class="bar">
+  <div class="progress" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="lights" aria-hidden="true"><i></i><i></i><i></i></div>
+    <a class="brand" href="#home"><span data-spark></span> mark<span class="at">@portfolio:~</span></a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#home">home</a>
+      <a href="#about">about</a>
+      <a href="#experience">experience</a>
+      <a href="#projects">projects</a>
+      <a href="#skills">skills</a>
+      <a href="#certifications">certs</a>
+      <a href="#resume">resume</a>
+      <a href="#contact">contact</a>
+      <span class="nav-ind" aria-hidden="true"></span>
+    </nav>
+    <button class="theme" id="themeBtn" aria-label="Toggle light and dark theme">◐</button>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ================= HOME ================= -->
+  <section id="home">
+    <div class="boot">$ <span class="cmd"><span class="txt"><b>claude</b> --portfolio mark-lamee</span></span></div>
+    <fieldset class="welcome">
+      <legend><span data-spark></span> Portfolio v1.0</legend>
+      <div class="w-grid">
+        <div class="w-left">
+          <div class="hello stg" style="--i:1">Welcome, I'm</div>
+          <h1 class="stg" style="--i:2">Mark Lamee</h1>
+          <div class="avatar stg" style="--i:3">
+            <span class="ph"><img src="assets/mark.jpg" alt="Portrait of Mark Lamee" width="480" height="480"></span>
+            <span class="ring" aria-hidden="true"></span>
+            <span data-spark="spin"></span>
+          </div>
+          <div class="role stg" style="--i:4"><span id="typed">Backend &amp; Cloud Engineer</span><span class="cursor" aria-hidden="true"></span></div>
+          <div class="meta stg" style="--i:5">Cairo, Egypt · CS @ Cairo University '27</div>
+        </div>
+        <div class="w-right">
+          <h2 class="stg" style="--i:3">What I do</h2>
+          <p class="lede stg" style="--i:4">I build event-driven backends in TypeScript and Go, the data pipelines around them, and the AWS infrastructure they run on.</p>
+          <hr class="stg" style="--i:5">
+          <h2 class="stg" style="--i:5">Right now</h2>
+          <ul class="now stg" style="--i:6">
+            <li class="live">Deploying QuickBite, a 3-service food-delivery platform, to AWS</li>
+            <li>AWS Certified Solutions Architect – Associate</li>
+            <li>Open to backend and cloud engineering roles</li>
+          </ul>
+          <div class="btns stg" style="--i:7">
+            <a class="btn primary" href="#projects">View projects →</a>
+            <a class="btn" href="assets/Mark_Lamee_Resume.pdf" download>Download resume ↓</a>
+            <a class="btn" href="https://github.com/markisaac1812" target="_blank" rel="noopener"><span data-icon="github"></span>GitHub</a>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="stats rv">
+      <div><b>3</b><span>microservices in QuickBite</span></div>
+      <div><b>2×</b><span>AWS certified</span></div>
+      <div><b>256k+</b><span>feedback reports mined at Creo</span></div>
+      <div><b>18</b><span>public repositories</span></div>
+    </div>
+    <div class="ticker" aria-hidden="true"><div class="track" id="ticker"></div></div>
+  </section>
+
+  <!-- ================= ABOUT ================= -->
+  <section id="about">
+    <div class="prompt"><span class="gt">&gt;</span>/about</div>
+    <div class="tool"><span class="dot">●</span><div><b>Read</b>(about.md)<div class="sub">Read 3 paragraphs</div></div></div>
+    <div class="head"><h2>About</h2></div>
+
+    <div class="about">
+      <div class="prose rv">
+        <p>I'm a computer science student at <b>Cairo University</b> (class of 2027) who builds backend systems and the cloud infrastructure underneath them. I'm drawn to the parts of software where correctness matters most: payments, queues, caches, and everything that can go wrong between two services.</p>
+        <p>My main project is <b>QuickBite</b>, a food-delivery backend split into three services that talk over HTTP and RabbitMQ, with a transactional outbox, per-country database sharding, and real-time order tracking. I'm in the final stage of deploying it to AWS.</p>
+        <p>In summer 2026 I interned as a data engineer at <b>Creo Technologies</b>, where I built PySpark pipelines on Microsoft Fabric and an NLP pipeline whose findings I presented to the CEO. Along the way I earned two AWS certifications, including <b>Solutions Architect – Associate</b>.</p>
+      </div>
+      <aside class="card edu lift rv">
+        <div class="when">Expected Jun 2027</div>
+        <h3>Cairo University</h3>
+        <div class="dim">B.Sc. in Computer Science · Cairo, Egypt</div>
+        <dl>
+          <div>
+            <dt>Coursework</dt>
+            <dd>Data Structures &amp; Algorithms (C++), Operating Systems, Databases, Software Engineering, Computer Networks, Probability &amp; Statistics</dd>
+          </div>
+          <div>
+            <dt>Focus</dt>
+            <dd>Backend, distributed systems, cloud</dd>
+          </div>
+        </dl>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ================= EXPERIENCE ================= -->
+  <section id="experience">
+    <div class="prompt"><span class="gt">&gt;</span>/experience</div>
+    <div class="tool"><span class="dot">●</span><div><b>Bash</b>(git log --career)<div class="sub">1 role</div></div></div>
+    <div class="head"><h2>Experience</h2></div>
+
+    <article class="card job rv">
+      <div>
+        <div class="when">Jul 2026 – Sep 2026</div>
+        <div class="where">Cairo, Egypt</div>
+      </div>
+      <div>
+        <h3>Data Engineering Intern <span>at</span> <span class="acc">Creo Technologies</span></h3>
+        <ul class="bullets">
+          <li>Developed a Python NLP keyword-extraction pipeline (TF-IDF) that mined <b>256,000+</b> customer feedback reports into actionable complaint themes such as cold food and wait times. Presented the findings to the CEO and integrated the results into Power BI dashboards.</li>
+          <li>Engineered PySpark ETL pipelines consuming <b>15 production REST APIs</b> into a Bronze/Silver/Gold medallion lakehouse on Microsoft Fabric for downstream analytics.</li>
+          <li>Built an automated capacity-monitoring alert in Microsoft Fabric that emails engineers when CPU utilization exceeds 60% and identifies the background jobs driving the load, replacing manual checks across <b>3 workspaces</b>.</li>
+        </ul>
+        <div class="tags"><span>Python</span><span>PySpark</span><span>Microsoft Fabric</span><span>Power BI</span><span>NLP</span><span>ETL</span></div>
+      </div>
+    </article>
+  </section>
+
+  <!-- ================= PROJECTS ================= -->
+  <section id="projects">
+    <div class="prompt"><span class="gt">&gt;</span>/projects</div>
+    <div class="tool"><span class="dot">●</span><div><b>Search</b>(pattern: "github.com/markisaac1812/*")<div class="sub">Found 18 repositories, showing 5 projects</div></div></div>
+    <div class="head"><h2>Projects</h2><p>One large system I'm taking to production, and the smaller builds that taught me the pieces.</p></div>
+
+    <article class="card feature rv">
+      <div class="feature-top">
+        <span class="badge">Deploying to AWS · in progress</span>
+        <h3>QuickBite</h3>
+        <p class="desc">A multi-tenant food-delivery backend built as three independently deployable services. Customers order, restaurants manage branches and menus, delivery agents get assigned, and owners see analytics. The services share nothing but contracts: synchronous HTTP where an answer is needed now, RabbitMQ events everywhere else.</p>
+        <div class="tags"><span>TypeScript</span><span>Go</span><span>Node.js</span><span>PostgreSQL</span><span>MongoDB</span><span>Redis</span><span>RabbitMQ</span><span>Socket.io</span><span>Docker</span><span>GitHub Actions</span><span>AWS</span></div>
+      </div>
+
+      <div class="arch" role="img" aria-label="QuickBite architecture: four client apps call core-service and order-service over HTTPS and WebSocket. Core and order services publish events through a transactional outbox to RabbitMQ, and analytics-service consumes them into MongoDB.">
+        <div class="arch-label">Architecture</div>
+        <div class="clients"><span>Customer app</span><span>Restaurant dashboard</span><span>Delivery app</span><span>Admin dashboard</span></div>
+        <div class="wires w4" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+        <div class="flow"><b>HTTPS · WebSocket</b></div>
+        <div class="wires w3 mid" aria-hidden="true"><i></i><i></i><i class="off"></i></div>
+        <div class="svcs">
+          <div class="svc">
+            <div class="svc-name">core-service</div>
+            <div class="svc-lang">TypeScript · Express</div>
+            <ul><li>PostgreSQL</li><li>Redis cache</li><li>S3 media</li></ul>
+            <div class="out">outbox → core.events ▼</div>
+          </div>
+          <div class="svc">
+            <div class="svc-name">order-service</div>
+            <div class="svc-lang">TypeScript · Express</div>
+            <ul><li>PostgreSQL, sharded per country</li><li>Redis cache + presence</li><li>Socket.io · Kashier payments</li></ul>
+            <div class="out">outbox → order.events ▼</div>
+          </div>
+          <div class="svc">
+            <div class="svc-name">analytics-service</div>
+            <div class="svc-lang">Go</div>
+            <ul><li>MongoDB daily rollups</li><li>Read-only HTTP API</li><li>Idempotent consumers</li></ul>
+            <div class="out">▲ consumes order.* payment.* rbac.*</div>
+          </div>
+        </div>
+        <div class="wires w3 to-bus" aria-hidden="true"><i></i><i></i><i class="up"></i></div>
+        <div class="bus"><b>RabbitMQ</b> <span class="dim">· topic exchanges · dead-letter queues</span></div>
+      </div>
+
+      <div class="services">
+        <article>
+          <h4>core-service <small>users · auth · catalog · RBAC</small></h4>
+          <p>Owns users, JWT authentication, restaurants, branches, products and the role-permission catalog. Redis caching, S3 media uploads, and a transactional outbox that publishes changes to RabbitMQ. Unit and integration suites run in GitHub Actions CI.</p>
+          <a href="https://github.com/markisaac1812/quickbite_core_service" target="_blank" rel="noopener">source ↗</a>
+        </article>
+        <article>
+          <h4>order-service <small>orders · payments · deliveries</small></h4>
+          <p>The high-write, money-critical path: order lifecycle, Kashier payments and webhooks, delivery assignment and the restaurant ledger. Postgres is sharded per country, critical writes are idempotent, and order status streams live over Socket.io with a Redis adapter.</p>
+          <a href="https://github.com/markisaac1812/quickbite_order_service" target="_blank" rel="noopener">source ↗</a>
+        </article>
+        <article>
+          <h4>analytics-service <small>events → rollups</small></h4>
+          <p>Written in Go. Consumes order, payment and RBAC events, deduplicates them, and folds them into per-day MongoDB rollups inside transactions. Ships with a backfill tool, a 56-check end-to-end suite and an 80% coverage gate.</p>
+          <a href="https://github.com/markisaac1812/quickbite_analytics_service" target="_blank" rel="noopener">source ↗</a>
+        </article>
+      </div>
+    </article>
+
+    <div class="grid">
+      <article class="card proj lift rv">
+        <div class="kind">Backend · Real-time</div>
+        <h3><span class="acc">▸</span>Real-Time Collaborative Code Review Platform</h3>
+        <p>An event-driven backend for collaborative code review. Comments and review state sync across 50+ concurrent users via Socket.io and Redis, Bull.js queues keep API responses under 150 ms under load, and Redis caching cut average read latency by 92%.</p>
+        <div class="tags"><span>Node.js</span><span>Express.js</span><span>Socket.io</span><span>Redis</span><span>Bull.js</span><span>MongoDB</span></div>
+        <div class="links"><a href="https://github.com/markisaac1812/-Real-Time-Collaborative-Code-Review-Platform" target="_blank" rel="noopener">source ↗</a></div>
+      </article>
+
+      <article class="card proj lift rv">
+        <div class="kind">Data engineering · IaC</div>
+        <h3><span class="acc">▸</span>Crypto Market Data Pipeline</h3>
+        <p>An end-to-end ETL pipeline that ingests daily prices for 50+ cryptocurrencies from the CoinGecko API into PostgreSQL on AWS RDS, scheduled by Apache Airflow on EC2. A dbt star schema with 19 automated tests sits on top, and Terraform provisions all of it in one command.</p>
+        <div class="tags"><span>Python</span><span>SQL</span><span>Apache Airflow</span><span>dbt</span><span>Terraform</span><span>AWS</span><span>Docker</span></div>
+        <div class="links"><a href="https://github.com/markisaac1812/cryptocurrency_prices_ETL" target="_blank" rel="noopener">source ↗</a></div>
+      </article>
+
+      <article class="card proj wide lift rv">
+        <div class="col">
+          <div class="kind">Cloud architecture · Terraform</div>
+          <h3><span class="acc">▸</span>AWS EKS Microservices Platform</h3>
+          <p>A Terraform-defined platform for eight microservices on EKS behind a Network Load Balancer. Node groups are split by workload behavior, each service owns its DynamoDB table while search and locations use Aurora and RDS, and a Kafka + Lambda notification path uses an idempotency table to avoid duplicate sends. Compute and data stay in private subnets, AWS traffic goes through VPC endpoints, and IAM roles are scoped per node group.</p>
+          <div class="tags"><span>Terraform</span><span>EKS</span><span>DynamoDB</span><span>Aurora</span><span>Kafka</span><span>Lambda</span><span>ElastiCache</span><span>VPC</span></div>
+          <div class="links"><a href="https://github.com/markisaac1812/AWS_EKS_MICROSERVIES_PLATFORM" target="_blank" rel="noopener">source ↗</a></div>
+        </div>
+        <a class="shot" href="assets/eks-architecture.png" target="_blank" rel="noopener" title="Open full-size diagram">
+          <img src="assets/eks-architecture.png" alt="Architecture diagram: an EKS cluster in a VPC with three node groups in private subnets, DynamoDB tables per service, Aurora, RDS, S3, NAT gateways, Kafka, a Lambda notification service and a Redis cluster." loading="lazy" width="879" height="799">
+        </a>
+      </article>
+
+      <article class="card proj lift rv">
+        <div class="kind">Backend · REST API</div>
+        <h3><span class="acc">▸</span>Natours</h3>
+        <p>A tour-booking backend with JWT authentication, Stripe payments, transactional email and image uploads, organized as a modular Express application on MongoDB with a documented Postman API.</p>
+        <div class="tags"><span>Node.js</span><span>Express.js</span><span>MongoDB</span><span>JWT</span><span>Stripe</span></div>
+        <div class="links">
+          <a href="https://github.com/markisaac1812/Natours-app" target="_blank" rel="noopener">source ↗</a>
+          <a href="https://documenter.getpostman.com/view/46123474/2sB3BDHWAU" target="_blank" rel="noopener">API docs ↗</a>
+        </div>
+      </article>
+
+      <article class="card proj lift rv">
+        <div class="kind">More</div>
+        <h3><span class="acc">▸</span>Everything else</h3>
+        <p>Smaller builds and learning projects: ETL pipelines deployed with Docker and Airflow, Terraform exercises, a Bedrock chatbot, Kafka experiments, and serverless APIs with Lambda and API Gateway.</p>
+        <div class="tags"><span>Python</span><span>Docker</span><span>Kafka</span><span>Lambda</span><span>Bedrock</span></div>
+        <div class="links"><a href="https://github.com/markisaac1812?tab=repositories" target="_blank" rel="noopener">all 18 repositories ↗</a></div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ================= SKILLS ================= -->
+  <section id="skills">
+    <div class="prompt"><span class="gt">&gt;</span>/skills</div>
+    <div class="tool"><span class="dot">●</span><div><b>Bash</b>(toolbox --list)<div class="sub">34 tools in 6 groups</div></div></div>
+    <div class="head"><h2>Skills &amp; tools</h2></div>
+
+    <div class="rv">
+      <div class="skillrow"><h3>Languages</h3><div class="tiles" data-tiles="typescript:TypeScript,javascript:JavaScript,go:Go,python:Python,:SQL,cplusplus:C++,gnubash:Bash"></div></div>
+      <div class="skillrow"><h3>Backend</h3><div class="tiles" data-tiles="nodedotjs:Node.js,express:Express.js,socketdotio:Socket.io,:REST APIs,:Microservices,:Event-Driven Architecture"></div></div>
+      <div class="skillrow"><h3>Messaging &amp; caching</h3><div class="tiles" data-tiles="rabbitmq:RabbitMQ,redis:Redis,:Bull.js"></div></div>
+      <div class="skillrow"><h3>Databases</h3><div class="tiles" data-tiles="postgresql:PostgreSQL,mongodb:MongoDB"></div></div>
+      <div class="skillrow"><h3>Cloud &amp; DevOps</h3><div class="tiles" data-tiles="amazonaws:AWS,amazonec2:EC2,amazons3:S3,amazonrds:RDS,:VPC,:IAM,docker:Docker,terraform:Terraform,git:Git,githubactions:GitHub Actions,jest:Jest"></div></div>
+      <div class="skillrow"><h3>Data</h3><div class="tiles" data-tiles="apachespark:PySpark,apacheairflow:Apache Airflow,dbt:dbt,:Microsoft Fabric,powerbi:Power BI"></div></div>
+    </div>
+  </section>
+
+  <!-- ================= CERTIFICATIONS ================= -->
+  <section id="certifications">
+    <div class="prompt"><span class="gt">&gt;</span>/certs</div>
+    <div class="tool"><span class="dot">●</span><div><b>Read</b>(certifications.json)<div class="sub">3 certifications</div></div></div>
+    <div class="head"><h2>Certifications</h2></div>
+
+    <div class="certs">
+      <article class="card cert lift rv">
+        <img src="assets/saa.png" alt="AWS Certified Solutions Architect – Associate badge" width="116" height="116" loading="lazy">
+        <div>
+          <h3>AWS Certified Solutions Architect – Associate</h3>
+          <div class="issuer">Amazon Web Services · SAA-C03</div>
+          <div class="date">Issued Oct 2026</div>
+          <a class="verify" href="https://www.credly.com/badges/68185017-7ea2-4a95-8d5f-9241a0ae5f83/public_url" target="_blank" rel="noopener">verify on Credly ↗</a>
+        </div>
+      </article>
+      <article class="card cert lift rv">
+        <img src="assets/clf.png" alt="AWS Certified Cloud Practitioner badge" width="116" height="116" loading="lazy">
+        <div>
+          <h3>AWS Certified Cloud Practitioner</h3>
+          <div class="issuer">Amazon Web Services · CLF-C02</div>
+          <div class="date">Issued Jul 2026</div>
+          <a class="verify" href="https://www.credly.com/badges/db96cbec-002e-4f20-8d7d-32a890747935" target="_blank" rel="noopener">verify on Credly ↗</a>
+        </div>
+      </article>
+      <article class="card cert wide rv">
+        <a class="shot" href="https://coursera.org/share/e0b40b72ce4fa2f41870dc89a1c7e09f" target="_blank" rel="noopener" title="Open the certificate on Coursera">
+          <img src="assets/coursera-de.png" alt="Coursera certificate: DeepLearning.AI Data Engineering Professional Certificate awarded to Mark Isaac Lamee" width="1030" height="796" loading="lazy">
+        </a>
+        <div>
+          <h3>DeepLearning.AI Data Engineering Professional Certificate</h3>
+          <div class="issuer">DeepLearning.AI &amp; AWS on Coursera · 4 courses · taught by Joe Reis, co-author of <i>Fundamentals of Data Engineering</i></div>
+          <div class="date">Issued Jun 2026</div>
+          <ul class="courses">
+            <li>Introduction to Data Engineering</li>
+            <li>Source Systems, Data Ingestion, and Pipelines</li>
+            <li>Data Storage and Queries</li>
+            <li>Data Modeling, Transformation, and Serving</li>
+          </ul>
+          <a class="verify" href="https://coursera.org/share/e0b40b72ce4fa2f41870dc89a1c7e09f" target="_blank" rel="noopener">verify on Coursera ↗</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ================= RESUME ================= -->
+  <section id="resume">
+    <div class="prompt"><span class="gt">&gt;</span>/resume</div>
+    <div class="tool"><span class="dot">●</span><div><b>Read</b>(Mark_Lamee_Resume.pdf)<div class="sub">Read 1 page</div></div></div>
+    <div class="head"><h2>Resume</h2></div>
+
+    <div class="card resume rv">
+      <div class="resume-bar">
+        <span class="file"><span class="acc">▸</span> <b>Mark_Lamee_Resume.pdf</b> · 1 page</span>
+        <div class="btns">
+          <a class="btn" href="assets/Mark_Lamee_Resume.pdf" target="_blank" rel="noopener">Open in new tab ↗</a>
+          <a class="btn primary" href="assets/Mark_Lamee_Resume.pdf" download>Download PDF ↓</a>
+        </div>
+      </div>
+      <iframe src="assets/Mark_Lamee_Resume.pdf#toolbar=0&amp;navpanes=0&amp;view=FitH" title="Mark Lamee's resume" loading="lazy"></iframe>
+      <div class="fallback">The preview is hidden on small screens. Use the buttons above to open or download the PDF.</div>
+    </div>
+  </section>
+
+  <!-- ================= CONTACT ================= -->
+  <section id="contact">
+    <div class="prompt"><span class="gt">&gt;</span>/contact</div>
+    <div class="tool"><span class="dot">●</span><div><b>Read</b>(contact.json)<div class="sub">3 channels</div></div></div>
+    <div class="head"></div>
+
+    <div class="card contact rv">
+      <div class="c-spark" aria-hidden="true"><span data-spark="spin"></span></div>
+      <h3>Let's build something reliable.</h3>
+      <p>I'm looking for backend and cloud engineering roles and internships. Email is the fastest way to reach me.</p>
+      <div class="btns">
+        <a class="btn primary" href="mailto:markisaac695@gmail.com">markisaac695@gmail.com</a>
+        <button class="btn" id="copyEmail" type="button" aria-label="Copy email address">Copy</button>
+        <a class="btn" href="https://www.linkedin.com/in/mark-lamee" target="_blank" rel="noopener"><span data-icon="linkedin"></span>LinkedIn</a>
+        <a class="btn" href="https://github.com/markisaac1812" target="_blank" rel="noopener"><span data-icon="github"></span>GitHub</a>
+      </div>
+    </div>
+
+  </section>
+
+  <footer class="foot">
+    <p>© 2026 Mark Lamee · Built in the terminal with <span data-spark></span> Claude Code</p>
+    <a href="#home">↑ back to top</a>
+  </footer>
+</main>
+
+<!-- ================= COMMAND BAR ================= -->
+<div class="composer">
+  <div class="wrap">
+    <div id="menu" role="listbox" aria-label="Commands"></div>
+    <div id="toast" role="status"></div>
+    <label class="inputbox">
+      <span class="gt" aria-hidden="true">&gt;</span>
+      <input id="input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"
+             placeholder='Type / to navigate, e.g. "/projects"' aria-label="Command bar: type a slash command to navigate">
+      <kbd>/</kbd>
+    </label>
+    <div class="hint">
+      <span class="keys">↑↓ select · tab complete · enter run</span>
+      <span class="avail">open to work</span>
+    </div>
+  </div>
+</div>
+
+<script src="assets/icons.js"></script>
+<script>
+document.documentElement.classList.add("js");
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => [...document.querySelectorAll(s)];
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const RESUME = "assets/Mark_Lamee_Resume.pdf";
+
+/* ---------- logo ---------- */
+function spark(cls = "") {
+  const len = [43, 35, 41, 33, 43, 37, 41, 34, 43, 36, 40, 33];
+  const tilt = [0, 4, -3, 2, 0, -4, 3, -2, 0, 3, -3, 2];
+  const d = len.map((l, i) => {
+    const a = ((i * 30 + tilt[i] - 90) * Math.PI) / 180;
+    const p = (r) => `${(50 + r * Math.cos(a)).toFixed(1)} ${(50 + r * Math.sin(a)).toFixed(1)}`;
+    return `M${p(7)}L${p(l)}`;
+  }).join("");
+  return `<svg class="spark ${cls}" viewBox="0 0 100 100" width="1em" height="1em" aria-hidden="true"><path d="${d}" stroke="currentColor" stroke-width="8.5" stroke-linecap="round" fill="none"/></svg>`;
+}
+$$("[data-spark]").forEach((n) => (n.outerHTML = spark(n.dataset.spark)));
+
+/* ---------- icons ---------- */
+const ICONS = Object.assign({
+  github: "M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12",
+  linkedin: "M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z",
+}, window.ICONS || {});
+const icon = (name) => ICONS[name] ? `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="${ICONS[name]}"/></svg>` : "";
+$$("[data-icon]").forEach((n) => (n.outerHTML = icon(n.dataset.icon)));
+$$("[data-tiles]").forEach((box) => {
+  box.innerHTML = box.dataset.tiles.split(",").map((t) => {
+    const [key, label] = t.split(":");
+    const mark = icon(key) || `<span class="mono" aria-hidden="true">${label.replace(/[^A-Za-z]/g, "").slice(0, 2).toUpperCase()}</span>`;
+    return `<span class="tile">${mark}${label}</span>`;
+  }).join("");
+});
+// Stagger index for the tile pop-in, counted across the whole skills block.
+$$(".tile").forEach((t, i) => t.style.setProperty("--i", i));
+
+/* ---- decorative extras: each is wrapped so a failure never hides content ---- */
+const safe = (fn) => { try { fn(); } catch (e) { console.warn(e); } };
+
+// Stack ticker under the hero stats, built from the skills data (duplicated once for a seamless loop).
+safe(() => {
+  const labels = $$("[data-tiles]").flatMap((b) => b.dataset.tiles.split(",").map((t) => t.split(":")[1]));
+  const run = labels.map((l) => `<span>${l}</span>`).join("");
+  $("#ticker").innerHTML = run + run;
+});
+
+// Wrap trailing arrows so CSS can nudge them on hover. Text content is unchanged.
+safe(() => {
+  const dir = { "→": "r", "↓": "d", "↗": "ne" };
+  $$("a").forEach((a) => {
+    const t = a.lastChild;
+    if (!t || t.nodeType !== 3) return;
+    const m = t.nodeValue.match(/^([\s\S]*?)([→↓↗])\s*$/);
+    if (!m) return;
+    t.nodeValue = m[1];
+    const sp = document.createElement("span");
+    sp.className = "arr " + dir[m[2]];
+    sp.textContent = m[2];
+    a.append(sp);
+  });
+});
+
+/* ---------- theme ---------- */
+let themeTransition = null, wantedTheme = null;
+function setTheme(t) {
+  const root = document.documentElement;
+  // The DOM updates a frame later inside the view transition, so remember the target now.
+  wantedTheme = t;
+  const apply = () => {
+    root.dataset.theme = t;
+    try { localStorage.setItem("theme", t); } catch {}
+  };
+  // Clicking again mid-animation: jump to the end of the current one instead of queueing another.
+  if (themeTransition) themeTransition.skipTransition();
+  if (reduced || !document.startViewTransition || document.hidden) { apply(); return; }
+  // Grow the reveal from the toggle button, sized to reach the farthest corner of the viewport.
+  // Animated with the Web Animations API so no style on the page changes before the snapshot.
+  const r = $("#themeBtn").getBoundingClientRect();
+  const x = r.left + r.width / 2, y = r.top + r.height / 2;
+  const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+  const vt = (themeTransition = document.startViewTransition(apply));
+  vt.ready.then(() => {
+    root.animate(
+      { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
+      { duration: 400, easing: "cubic-bezier(.4, 0, .2, 1)", pseudoElement: "::view-transition-new(root)" }
+    );
+  }).catch(() => {});
+  vt.finished.finally(() => { if (themeTransition === vt) themeTransition = null; });
+}
+
+// While the reveal plays, the browser hit-tests its snapshot as <html>, so clicks would be lost.
+// A click during the reveal finishes it immediately and is handed to the element under the pointer.
+document.addEventListener("click", (e) => {
+  const vt = themeTransition;
+  if (!vt || e.target !== document.documentElement) return;
+  e.preventDefault();
+  e.stopImmediatePropagation();
+  vt.skipTransition();
+  vt.finished.finally(() => requestAnimationFrame(() => {
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    if (!el || el === document.documentElement) return;
+    const target = el.closest("a, button, input, label, [data-cmd]") || el;
+    if (target.matches("input, textarea")) target.focus();
+    else target.click();
+  }));
+}, true);
+const toggleTheme = () => setTheme((wantedTheme || document.documentElement.dataset.theme) === "dark" ? "light" : "dark");
+try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch {}
+$("#themeBtn").addEventListener("click", toggleTheme);
+
+/* ---------- hero typing ---------- */
+(async () => {
+  const el = $("#typed");
+  if (reduced) return;
+  const text = el.textContent;
+  el.textContent = "";
+  await new Promise((r) => setTimeout(r, 650));
+  for (const ch of text) {
+    el.textContent += ch;
+    await new Promise((r) => setTimeout(r, 45));
+  }
+})();
+
+/* ---------- stat counters ---------- */
+function countUp(el) {
+  const full = el.textContent;
+  const m = full.match(/^(\d+)(.*)$/);
+  if (!m || reduced) return;
+  const n = +m[1], suffix = m[2], dur = 900, t0 = performance.now();
+  const tick = (now) => {
+    const p = Math.min((now - t0) / dur, 1);
+    el.textContent = p < 1 ? Math.round(n * (1 - Math.pow(1 - p, 3))) + suffix : full;
+    if (p < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+/* ---------- section headers: type the command, think, resolve ---------- */
+// Purely cosmetic and class-driven (see the .pre / .run CSS). It never scrolls and never moves layout.
+const started = new WeakMap();
+safe(() => {
+  if (reduced || !("IntersectionObserver" in window)) return;
+  const runner = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (!e.isIntersecting && e.boundingClientRect.top >= 0) return;
+      const sec = e.target.parentNode;
+      sec.classList.remove("pre");
+      sec.classList.add("run");
+      started.set(sec, performance.now());
+      runner.unobserve(e.target);
+    });
+  }, { rootMargin: "0px 0px -6% 0px" });
+  $$("main section > .prompt").forEach((p) => {
+    const text = p.lastChild;
+    const sub = p.parentNode.querySelector(".tool .sub");
+    if (!text || text.nodeType !== 3 || !sub) return;
+    const cmd = document.createElement("span");
+    cmd.className = "cmd";
+    cmd.style.setProperty("--n", text.nodeValue.trim().length);
+    cmd.innerHTML = '<span class="txt"></span>';
+    cmd.firstChild.textContent = text.nodeValue.trim();
+    text.replaceWith(cmd);
+    sub.innerHTML = `<span class="slot"><span class="res">${sub.innerHTML}</span><span class="think" aria-hidden="true"><i>✻</i> Thinking…</span></span>`;
+    p.parentNode.classList.add("pre");
+    runner.observe(p);
+  });
+});
+
+/* ---------- reveal + scrollspy ---------- */
+function show(el, order) {
+  if (!reduced) {
+    // Let the section's command line land first, then stagger siblings. Total stays well under a second.
+    const sec = el.closest("section");
+    const fresh = sec && (sec.classList.contains("pre") || performance.now() - (started.get(sec) || -1e4) < 300);
+    el.style.transitionDelay = (fresh ? 220 : 0) + Math.min(order, 2) * 70 + "ms";
+    setTimeout(() => (el.style.transitionDelay = ""), 1000);
+  }
+  el.classList.add("in");
+  if (el.classList.contains("stats")) el.querySelectorAll("b").forEach(countUp);
+}
+if ("IntersectionObserver" in window) {
+  const reveal = new IntersectionObserver((entries) => {
+    let order = 0;
+    entries.forEach((e) => {
+      // Also reveal anything that is already above the viewport (e.g. the page was opened at #contact).
+      if (!e.isIntersecting && e.boundingClientRect.bottom > 0) return;
+      show(e.target, e.isIntersecting ? order++ : 0);
+      reveal.unobserve(e.target);
+    });
+  }, { rootMargin: "0px 0px -8% 0px" });
+  $$(".rv").forEach((n) => reveal.observe(n));
+} else {
+  $$(".rv").forEach((n) => n.classList.add("in"));
+}
+
+const navLinks = $$(".nav a"), navBox = $(".nav"), navInd = $(".nav-ind");
+function markNav(a) {
+  if (!a) return;
+  navInd.style.transform = `translateX(${a.offsetLeft + 10}px) scaleX(${Math.max(a.offsetWidth - 20, 0)})`;
+}
+addEventListener("resize", () => markNav($(".nav a.on")));
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => markNav($(".nav a.on")));
+const spy = new IntersectionObserver((entries) => {
+  entries.forEach((e) => {
+    if (!e.isIntersecting) return;
+    navLinks.forEach((a) => {
+      const on = a.getAttribute("href") === "#" + e.target.id;
+      a.classList.toggle("on", on);
+      // Scroll only the nav strip. scrollIntoView here would cancel the page's own smooth scroll.
+      if (on) { navBox.scrollTo({ left: a.offsetLeft - navBox.clientWidth / 2 + a.offsetWidth / 2 }); markNav(a); }
+    });
+  });
+}, { rootMargin: "-35% 0px -60% 0px" });
+$$("main section").forEach((s) => spy.observe(s));
+
+/* ---------- scroll progress (read-only: this handler never scrolls anything) ---------- */
+safe(() => {
+  const bar = $(".bar"), prog = $(".progress");
+  let queued = false;
+  const paint = () => {
+    queued = false;
+    const max = document.documentElement.scrollHeight - innerHeight;
+    prog.style.transform = `scaleX(${max > 0 ? Math.min(scrollY / max, 1) : 0})`;
+    bar.classList.toggle("scrolled", scrollY > 8);
+  };
+  addEventListener("scroll", () => { if (!queued) { queued = true; requestAnimationFrame(paint); } }, { passive: true });
+  addEventListener("resize", paint);
+  paint();
+});
+
+/* ---------- cursor-follow glow on cards ---------- */
+safe(() => {
+  if (!matchMedia("(hover: hover)").matches) return;
+  let queued = false, last;
+  document.addEventListener("pointermove", (e) => {
+    last = e;
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => {
+      queued = false;
+      const card = last.target.closest && last.target.closest(".card, .welcome");
+      if (!card) return;
+      const r = card.getBoundingClientRect();
+      card.style.setProperty("--mx", last.clientX - r.left + "px");
+      card.style.setProperty("--my", last.clientY - r.top + "px");
+    });
+  }, { passive: true });
+});
+
+/* ---------- QuickBite diagram: run the flow only while visible, link boxes to their write-ups ---------- */
+safe(() => {
+  const arch = $(".arch");
+  if ("IntersectionObserver" in window && !reduced) {
+    new IntersectionObserver((es) => es.forEach((e) => arch.classList.toggle("live", e.isIntersecting))).observe(arch);
+  }
+  const boxes = $$(".svc"), notes = $$(".services article"), row = $(".svcs");
+  boxes.forEach((box, i) => {
+    const note = notes[i];
+    const set = (on) => () => {
+      box.classList.toggle("hot", on);
+      if (note) note.classList.toggle("hot", on);
+      row.classList.toggle("has-hot", on);
+    };
+    [box, note].forEach((n) => {
+      if (!n) return;
+      n.addEventListener("pointerenter", set(true));
+      n.addEventListener("pointerleave", set(false));
+    });
+  });
+});
+
+/* ---------- command bar ---------- */
+const input = $("#input"), menu = $("#menu"), toast = $("#toast");
+const go = (id) => () => document.getElementById(id).scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
+const COMMANDS = [
+  { name: "/home", desc: "Back to the top", run: go("home") },
+  { name: "/about", desc: "Who I am", run: go("about") },
+  { name: "/experience", desc: "Where I've worked", run: go("experience") },
+  { name: "/projects", desc: "QuickBite and other builds", run: go("projects") },
+  { name: "/skills", desc: "Languages, tools and platforms", run: go("skills") },
+  { name: "/certs", desc: "AWS certifications", run: go("certifications") },
+  { name: "/resume", desc: "View my resume", run: go("resume") },
+  { name: "/download", desc: "Download my resume as PDF", run: download },
+  { name: "/contact", desc: "Get in touch", run: go("contact") },
+  { name: "/github", desc: "Open my GitHub profile", run: () => window.open("https://github.com/markisaac1812", "_blank", "noopener") },
+  { name: "/theme", desc: "Toggle light and dark", run: toggleTheme },
+  { name: "/help", desc: "List all commands", run: () => say("Commands: " + COMMANDS.map((c) => c.name).join("  ")) },
+];
+const ALIASES = { "/certifications": "/certs", "/cv": "/resume", "/work": "/projects", "/email": "/contact", "/top": "/home" };
+
+function download() {
+  const a = document.createElement("a");
+  a.href = RESUME;
+  a.download = "Mark_Lamee_Resume.pdf";
+  document.body.append(a);
+  a.click();
+  a.remove();
+  say("Downloading Mark_Lamee_Resume.pdf");
+}
+
+/* ---------- copy email ---------- */
+safe(() => {
+  const email = "markisaac695@gmail.com";
+  $("#copyEmail").addEventListener("click", async () => {
+    let ok = false;
+    try { await navigator.clipboard.writeText(email); ok = true; } catch {
+      // file:// and older browsers: fall back to a temporary selection.
+      const t = document.createElement("textarea");
+      t.value = email;
+      t.setAttribute("readonly", "");
+      t.style.cssText = "position:fixed;opacity:0;top:0;left:0";
+      document.body.append(t);
+      t.select();
+      try { ok = document.execCommand("copy"); } catch {}
+      t.remove();
+    }
+    say(ok ? "Copied " + email : "Could not copy. The address is " + email);
+  });
+});
+
+let toastTimer;
+function say(text) {
+  toast.textContent = "● " + text;
+  toast.classList.add("open");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove("open"), 4200);
+}
+
+let matches = [], sel = 0;
+function renderMenu() {
+  const v = input.value.trim().toLowerCase();
+  matches = v.startsWith("/") && !v.includes(" ") ? COMMANDS.filter((c) => c.name.startsWith(v)) : [];
+  sel = Math.min(sel, Math.max(matches.length - 1, 0));
+  menu.classList.toggle("open", matches.length > 0);
+  if (matches.length) toast.classList.remove("open");
+  menu.innerHTML = matches.map((c, i) =>
+    `<div class="mi${i === sel ? " sel" : ""}" role="option" aria-selected="${i === sel}" data-cmd="${c.name}"><span>${c.name}</span><span>${c.desc}</span></div>`).join("");
+}
+
+function run(raw) {
+  const text = raw.trim().toLowerCase();
+  input.value = "";
+  sel = 0;
+  renderMenu();
+  if (!text) return;
+  let key = text.split(/\s+/)[0];
+  if (!key.startsWith("/")) key = "/" + key;
+  key = ALIASES[key] || key;
+  const command = COMMANDS.find((c) => c.name === key);
+  if (command) command.run();
+  else say(`Unknown command "${raw.trim().slice(0, 40)}". Type /help to see what's available.`);
+}
+
+input.addEventListener("input", () => { sel = 0; renderMenu(); });
+input.addEventListener("blur", () => setTimeout(() => menu.classList.remove("open"), 120));
+input.addEventListener("focus", renderMenu);
+input.addEventListener("keydown", (e) => {
+  const open = matches.length > 0;
+  if (e.key === "Enter") {
+    e.preventDefault();
+    run(open ? matches[sel].name : input.value);
+    if (matchMedia("(pointer: coarse)").matches) input.blur();
+  } else if (e.key === "Tab" && open) {
+    e.preventDefault();
+    input.value = matches[sel].name;
+    renderMenu();
+  } else if ((e.key === "ArrowDown" || e.key === "ArrowUp") && open) {
+    e.preventDefault();
+    sel = (sel + (e.key === "ArrowDown" ? 1 : -1) + matches.length) % matches.length;
+    renderMenu();
+  } else if (e.key === "Escape") {
+    input.value = "";
+    renderMenu();
+    input.blur();
+  }
+});
+menu.addEventListener("mousedown", (e) => {
+  e.preventDefault();
+  const item = e.target.closest("[data-cmd]");
+  if (item) run(item.dataset.cmd);
+});
+
+// Pressing "/" anywhere jumps into the command bar.
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "/" || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (document.activeElement === input || /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)) return;
+  e.preventDefault();
+  input.focus();
+  input.value = "/";
+  renderMenu();
+});
+</script>
+</body>
+</html>
