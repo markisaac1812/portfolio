@@ -35,7 +35,7 @@ The one thing a reader should remember is the pairing of two proofs:
 
 A student holding both the credential and a system that exercises it is the claim a neighbouring portfolio cannot copy.
 
-The site states this as "Software Engineer" with "backend · cloud · DevOps" beneath it (page title, meta description, hero), updated 2026-11-13.
+The site states this as the hero line "Software engineer. Backend, cloud and DevOps." under his name, and in the page title and meta description (updated 2026-11-14).
 
 ## Operating Context
 
@@ -51,7 +51,7 @@ The site states this as "Software Engineer" with "backend · cloud · DevOps" be
 - QuickBite is feature-complete except for its last step, deployment to AWS. Mark expects that to finish around 2026-11-20 (stated 2026-11-13). The site says "Deploying to AWS · final step" in the QuickBite badge and "Deploying to AWS now" in the hero; both must change to a deployed status once it is live, and must not claim it earlier.
 - **Undecided:** hosting and deploy target (GitHub Pages or other) and any custom domain. Not established in this session.
 - The site asks for "software engineering internships and part-time roles". **Undecided:** an availability window (for example a start month); none is stated because none was confirmed.
-- The visual concept (a Claude Code terminal session) is kept as it is by Mark's decision on 2026-11-12. Work on the site fixes content, order, mobile behaviour and accessibility around it.
+- The visual concept changed on 2026-11-14 by Mark's decision: an Apple-style product page (system font with Inter as fallback, large tight headlines, alternating white and light-grey bands of rounded tiles, a frosted-glass top bar, blue as the one accent, light and dark themes). The only element kept from the earlier Claude Code terminal concept is the slash-command bar, now a floating glass pill at the bottom of the screen. The terminal version is preserved on the git branch `terminal-theme`. The page applies Apple's design principles; it must not use Apple's logo, product names or licensed fonts.
 
 ## Brand Commitments
 
@@ -63,7 +63,7 @@ The site states this as "Software Engineer" with "backend · cloud · DevOps" be
 
 Real material in the repository:
 
-- `assets/Mark_Lamee_Resume.pdf`: resume. As of 2026-11-13 it is unfinished: it contains bracket placeholders ("[operations management]", "[notifications, ...]", "[Oct 2026]"), a sentence missing a noun ("reports from 10+ into"), no mention of QuickBite, one certification where the site lists three, and a phone number the site does not show. The site embeds it as an inline preview in the resume section on desktop (restored at Mark's request on 2026-11-13 after it had been removed) and links to it on small screens, so its contents are publicly visible on the page.
+- `assets/Mark_Lamee_Resume.pdf`: resume, updated by Mark on 2026-11-13 (the earlier bracket placeholders are gone). As read on 2026-11-14 it still has one sentence missing a noun ("reports from 10+ into"), no mention of QuickBite, one certification where the site lists three, and a phone number the site does not show elsewhere. The site embeds it as an inline preview in the resume section on desktop and links to it on small screens, so its contents are publicly visible on the page.
 - `assets/mark.jpg`: portrait.
 - `assets/saa.png`, `assets/clf.png`, `assets/coursera-de.png`: certification badges and certificate.
 - `assets/eks-architecture.png`: architecture diagram for the AWS EKS Microservices Platform project.
